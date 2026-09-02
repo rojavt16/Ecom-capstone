@@ -4,39 +4,223 @@
 }
 
 .hero {
+  --hero-min-height: 520px;
+  --hero-cta-bg: #7ef04e;
+  --hero-cta-color: #0d1f08;
+  --hero-inset: 24px;
+
   position: relative;
-  padding: 40px 24px;
-  min-height: 300px;
+  min-height: var(--hero-min-height);
+  overflow: hidden;
+  color: #fff;
 }
 
-.hero h1 {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  color: var(--background-color);
+/* ------------------------------------------------------------------ slides */
+
+.hero-track {
+  display: grid;
+  min-height: var(--hero-min-height);
 }
 
-.hero picture {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  object-fit: cover;
+.hero-slide {
+  grid-area: 1 / 1;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: var(--hero-min-height);
+  padding: var(--hero-inset);
+  padding-bottom: 88px;
   box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease;
 }
 
-.hero img {
-  object-fit: cover;
+.hero-slide.is-active,
+.hero-single .hero-slide {
+  opacity: 1;
+  visibility: visible;
+}
+
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-media picture,
+.hero-media img {
+  display: block;
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
+
+/* keeps the copy legible over any photograph */
+.hero-slide::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    100deg,
+    rgb(0 0 0 / 62%) 0%,
+    rgb(0 0 0 / 38%) 42%,
+    rgb(0 0 0 / 5%) 78%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 560px;
+}
+
+.hero-content h1 {
+  margin: 0 0 16px;
+  font-family: var(--body-font-family);
+  font-size: 44px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
 .hero-content p {
-  margin-bottom: 54px;
+  margin: 0 0 24px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgb(255 255 255 / 88%);
+  max-width: 420px;
 }
 
+.hero-content .button-wrapper {
+  margin: 0;
+}
 
+/* a link the author did not format stays legible on the photo; only a
+   buttonized link (bold / italic in the doc) becomes the pill CTA */
+.hero .hero-content a:any-link {
+  color: #fff;
+}
+
+.hero .hero-content a.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 22px;
+  background-color: var(--hero-cta-bg);
+  color: var(--hero-cta-color);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.hero .hero-content a.button::after {
+  content: '→';
+  font-weight: 400;
+}
+
+.hero .hero-content a.button:hover,
+.hero .hero-content a.button:focus-visible {
+  transform: translateX(2px);
+  border-color: transparent;
+  background-color: var(--hero-cta-bg);
+  color: var(--hero-cta-color);
+}
+
+/* ---------------------------------------------------------------- controls */
+
+.hero-controls {
+  position: absolute;
+  z-index: 3;
+  left: var(--hero-inset);
+  right: var(--hero-inset);
+  bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  pointer-events: none;
+}
+
+.hero-dots {
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.hero-dot {
+  width: 40px;
+  height: 2px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: rgb(255 255 255 / 38%);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.hero-dot.is-active {
+  background: #fff;
+}
+
+.hero-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.hero-counter {
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: rgb(255 255 255 / 85%);
+}
+
+.hero-next {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 3px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.hero-next::before {
+  content: '';
+  border-style: solid;
+  border-width: 5px 0 5px 7px;
+  border-color: transparent transparent transparent currentcolor;
+}
+
+.hero-next:hover {
+  background: rgb(255 255 255 / 15%);
+}
 
 @media (width >= 900px) {
   .hero {
-    padding: 40px 32px;
+    --hero-min-height: 560px;
+    --hero-inset: 48px;
+  }
+
+  .hero-content h1 {
+    font-size: 56px;
+  }
+
+  .hero-slide {
+    padding-bottom: 104px;
   }
 }
