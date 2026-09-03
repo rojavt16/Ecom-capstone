@@ -1,6 +1,53 @@
 version: 1
 
+definitions:
+  properties: &common
+    title:
+      select: head > meta[property="og:title"]
+      value: |
+        attribute(el, 'content')
+    description:
+      select: head > meta[name="description"]
+      value: |
+        attribute(el, 'content')
+    # kept absolute on purpose: stripping the origin only works for images
+    # hosted in DA, and would break externally hosted product photography
+    image:
+      select: head > meta[property="og:image"]
+      value: |
+        attribute(el, 'content')
+    template:
+      select: head > meta[name="template"]
+      value: |
+        attribute(el, 'content')
+
 indices:
+
+  # every category page, on its own endpoint
+  categories:
+    include:
+      - '/eds-ecommerce/pages/categories/**'
+    target: /eds-ecommerce/pages/categories/query-index.json
+    properties:
+      <<: *common
+
+  # every product page, with the commerce columns
+  products:
+    include:
+      - '/eds-ecommerce/pages/products/**'
+    target: /eds-ecommerce/pages/products/query-index.json
+    properties:
+      <<: *common
+      sku:
+        select: head > meta[name="sku"]
+        value: |
+          attribute(el, 'content')
+      price:
+        select: head > meta[name="price"]
+        value: |
+          attribute(el, 'content')
+
+  # site-wide index, kept for sitemap / search use
   default:
     include:
       - '/eds-ecommerce/pages/**'
@@ -10,31 +57,4 @@ indices:
       - '/eds-ecommerce/fragments/**'
     target: /query-index.json
     properties:
-      title:
-        select: head > meta[property="og:title"]
-        value: |
-          attribute(el, 'content')
-      description:
-        select: head > meta[name="description"]
-        value: |
-          attribute(el, 'content')
-      image:
-        select: head > meta[property="og:image"]
-        value: |
-          match(attribute(el, 'content'), 'https:\/\/[^/]+(/.*)')
-      template:
-        select: head > meta[name="template"]
-        value: |
-          attribute(el, 'content')
-      sku:
-        select: head > meta[name="sku"]
-        value: |
-          attribute(el, 'content')
-      price:
-        select: head > meta[name="price"]
-        value: |
-          attribute(el, 'content')
-      lastModified:
-        select: none
-        value: |
-          parseTimestamp(headers('last-modified'), 'ddd, DD MMM YYYY hh:mm:ss GMT')
+      <<: *common
