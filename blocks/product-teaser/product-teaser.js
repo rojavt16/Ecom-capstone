@@ -45,7 +45,9 @@ export function priceAmount(value) {
   return Number.isNaN(amount) ? null : amount;
 }
 
-function buildAddToCart(item) {
+export function buildAddToCart(item) {
+  // callers may want only the button, so the stylesheet is claimed here too
+  ensureStyles();
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'product-teaser-add';
