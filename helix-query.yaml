@@ -31,6 +31,10 @@ indices:
         select: head > meta[name="price"]
         value: |
           attribute(el, 'content')
+      category:
+        select: head > meta[name="category"]
+        value: |
+          attribute(el, 'content')
   
 sitemaps:
   default:

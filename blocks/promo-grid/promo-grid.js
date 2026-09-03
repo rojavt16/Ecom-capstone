@@ -1,25 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
-/**
- * Promo grid - a row of cards, either authored by hand or pulled from the
- * query index. Used for featured categories and, with the "products"
- * variant, for featured products.
- *
- * Config rows (all optional, any order):
- *   Title    | Categories
- *   CTA      | Shop now                 (a link)
- *   Source   | /query-index.json
- *   Sheet    | products                 (tab name in a multi-sheet workbook)
- *   Filter   | /eds-ecommerce/pages/category/
- *   Limit    | 4
- *   Currency | $                        (prefixed to bare numeric prices)
- *
- * Any row whose first cell is not one of those keys is treated as a card:
- *   categories:  (image) | Plants                     (label linked)
- *   products:    (image) | Monstera Deliciosa | 24.00 (label linked)
- *
- * Hand-authored cards win: when the block has any, no fetch is made.
- */
 
 const CONFIG_KEYS = ['title', 'cta', 'source', 'sheet', 'filter', 'limit', 'currency'];
 const DEFAULT_SOURCE = '/query-index.json';
