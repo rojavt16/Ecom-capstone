@@ -2,23 +2,28 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 
 /**
  * Promo grid - a row of cards, either authored by hand or pulled from the
- * query index.
+ * query index. Used for featured categories and, with the "products"
+ * variant, for featured products.
  *
  * Config rows (all optional, any order):
- *   Title   | Categories
- *   CTA     | Shop now                  (a link)
- *   Source  | /query-index.json
- *   Filter  | /eds-ecommerce/pages/category/
- *   Limit   | 4
+ *   Title    | Categories
+ *   CTA      | Shop now                 (a link)
+ *   Source   | /query-index.json
+ *   Sheet    | products                 (tab name in a multi-sheet workbook)
+ *   Filter   | /eds-ecommerce/pages/category/
+ *   Limit    | 4
+ *   Currency | $                        (prefixed to bare numeric prices)
  *
  * Any row whose first cell is not one of those keys is treated as a card:
- *   (image) | Plants                    (link the label to the category page)
+ *   categories:  (image) | Plants                     (label linked)
+ *   products:    (image) | Monstera Deliciosa | 24.00 (label linked)
  *
  * Hand-authored cards win: when the block has any, no fetch is made.
  */
 
-const CONFIG_KEYS = ['title', 'cta', 'source', 'filter', 'limit'];
+const CONFIG_KEYS = ['title', 'cta', 'source', 'sheet', 'filter', 'limit', 'currency'];
 const DEFAULT_SOURCE = '/query-index.json';
+const DEFAULT_CURRENCY = '$';
 
 /**
  * Splits authored rows into config entries and card rows.
@@ -44,20 +49,88 @@ function readBlock(block) {
 }
 
 /**
- * Fetches index rows. Accepts the query-index envelope and a bare array, so a
- * block still works while pointed at a mock endpoint.
- * @param {string} source URL of the index
+ * Fetches rows. Accepts the query-index / spreadsheet envelope, a multi-sheet
+ * workbook, and a bare array, so a block still works against a mock endpoint.
+ * @param {string} source URL of the index or sheet
+ * @param {string} sheet tab name, when the source is a multi-sheet workbook
  * @returns {Promise<Array<Object>>} the rows
  */
-async function fetchRows(source) {
+async function fetchRows(source, sheet) {
   const response = await fetch(source);
   if (!response.ok) throw new Error(`HTTP ${response.status} from ${source}`);
   const json = await response.json();
   if (Array.isArray(json)) return json;
+
+  // a workbook with several tabs exposes each one by name rather than
+  // returning a single data array
+  if (json[':type'] === 'multi-sheet') {
+    const names = json[':names'] || [];
+    const picked = (sheet && json[sheet]) || json[names[0]];
+    return (picked && picked.data) || [];
+  }
+
   return json.data || [];
 }
 
-function renderCard({ href, picture, label }) {
+/**
+ * Prefixes a currency symbol onto a bare number. A price the author already
+ * wrote with a symbol or code is left exactly as typed.
+ * @param {string} value the authored or indexed price
+ * @param {string} currency symbol to prefix
+ * @returns {string} the display price
+ */
+function formatPrice(value, currency) {
+  const raw = String(value === undefined || value === null ? '' : value).trim();
+  if (!raw) return '';
+  if (!/^[\d.,]+$/.test(raw)) return raw;
+  return `${currency}${raw}`;
+}
+
+/**
+ * The numeric value behind a price, for cart arithmetic.
+ * @param {string} value the authored or indexed price
+ * @returns {number|null} the amount, or null when it cannot be read
+ */
+function priceAmount(value) {
+  const amount = Number.parseFloat(String(value || '').replace(/[^\d.-]/g, ''));
+  return Number.isNaN(amount) ? null : amount;
+}
+
+/**
+ * The "Add to cart" control. It carries the line-item data and announces it
+ * on the document, so the Phase 4 cart module can subscribe without this
+ * block having to import it.
+ * @param {Object} item sku, title, price, currency, image and path
+ * @returns {Element} the button
+ */
+function buildAddToCart(item) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'promo-card-add';
+  button.textContent = 'Add to cart';
+  Object.entries(item).forEach(([key, value]) => {
+    if (value !== '' && value !== null && value !== undefined) button.dataset[key] = value;
+  });
+  button.addEventListener('click', () => {
+    document.dispatchEvent(new CustomEvent('cart:add', {
+      bubbles: true,
+      detail: { ...item, quantity: 1 },
+    }));
+    // until the cart module lands the click has no other effect, so confirm
+    // it here rather than leaving the control looking dead
+    button.classList.add('is-added');
+    button.textContent = 'Added';
+    window.setTimeout(() => {
+      button.classList.remove('is-added');
+      button.textContent = 'Add to cart';
+    }, 1600);
+  });
+  return button;
+}
+
+function renderCard({
+  href, picture, label, price, item,
+}) {
   const li = document.createElement('li');
   li.className = 'promo-card';
 
@@ -72,38 +145,80 @@ function renderCard({ href, picture, label }) {
     link.append(media);
   }
 
-  const arrow = document.createElement('span');
-  arrow.className = 'promo-card-arrow';
-  arrow.setAttribute('aria-hidden', 'true');
+  // the diagonal arrow belongs to the category treatment only
+  if (!item) {
+    const arrow = document.createElement('span');
+    arrow.className = 'promo-card-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    link.append(arrow);
+  }
 
   const caption = document.createElement('span');
   caption.className = 'promo-card-label';
   caption.textContent = label;
+  link.append(caption);
 
-  link.append(arrow, caption);
+  if (price) {
+    const amount = document.createElement('span');
+    amount.className = 'promo-card-price';
+    amount.textContent = price;
+    link.append(amount);
+  }
+
   li.append(link);
+  // a button may not sit inside an anchor, so it is a sibling
+  if (item) li.append(buildAddToCart(item));
   return li;
 }
 
-function cardFromRow(row) {
+function cardFromRow(row, products, currency) {
   const picture = row.querySelector('picture');
   const link = row.querySelector('a[href]');
-  const label = link
-    ? link.textContent.trim()
-    : [...row.children]
-      .filter((cell) => !cell.querySelector('picture'))
-      .map((cell) => cell.textContent.trim())
-      .filter(Boolean)
-      .join(' ');
-  return renderCard({ href: link ? link.getAttribute('href') : '', picture, label });
+  const cells = [...row.children].filter((cell) => !cell.querySelector('picture'));
+  const texts = cells.map((cell) => cell.textContent.trim()).filter(Boolean);
+
+  const label = link ? link.textContent.trim() : texts[0] || '';
+  const href = link ? link.getAttribute('href') : '';
+  if (!products) return renderCard({ href, picture, label });
+
+  // the price is the last authored cell that is not the label
+  const authoredPrice = texts.length > 1 ? texts[texts.length - 1] : '';
+  return renderCard({
+    href,
+    picture,
+    label,
+    price: formatPrice(authoredPrice, currency),
+    item: {
+      sku: href ? href.split('/').pop() : label,
+      title: label,
+      price: priceAmount(authoredPrice),
+      currency,
+      path: href,
+    },
+  });
 }
 
-function cardFromIndex(entry) {
+function cardFromIndex(entry, products, currency) {
   const label = entry.title || entry.name || entry.path || '';
   const picture = entry.image
     ? createOptimizedPicture(entry.image, label, false, [{ width: '600' }])
     : null;
-  return renderCard({ href: entry.path, picture, label });
+  if (!products) return renderCard({ href: entry.path, picture, label });
+
+  return renderCard({
+    href: entry.path,
+    picture,
+    label,
+    price: formatPrice(entry.price, currency),
+    item: {
+      sku: entry.sku || (entry.path || '').split('/').pop(),
+      title: label,
+      price: priceAmount(entry.price),
+      currency,
+      image: entry.image || '',
+      path: entry.path || '',
+    },
+  });
 }
 
 function message(block, text) {
@@ -114,18 +229,21 @@ function message(block, text) {
 }
 
 export default async function decorate(block) {
+  const products = block.classList.contains('products');
   const { config, cardRows } = readBlock(block);
 
   const source = (config.source && (
     (config.source.link && config.source.link.getAttribute('href')) || config.source.text
   )) || DEFAULT_SOURCE;
+  const sheet = config.sheet ? config.sheet.text : '';
   const filter = config.filter ? config.filter.text : '';
   const limit = Number.parseInt(config.limit ? config.limit.text : '', 10);
+  const currency = (config.currency && config.currency.text) || DEFAULT_CURRENCY;
   const title = config.title ? config.title.text : '';
   const cta = config.cta ? config.cta.link : null;
 
   // take the authored cards before the block is emptied
-  const authored = cardRows.map(cardFromRow);
+  const authored = cardRows.map((row) => cardFromRow(row, products, currency));
 
   block.textContent = '';
 
@@ -154,17 +272,24 @@ export default async function decorate(block) {
   }
 
   try {
-    let rows = await fetchRows(source);
+    let rows = await fetchRows(source, sheet);
     if (filter) rows = rows.filter((row) => (row.path || '').startsWith(filter));
+
+    // a products grid must never fall back to rendering category pages
+    const matched = rows.length;
+    if (products) rows = rows.filter((row) => row.price);
+
     if (!Number.isNaN(limit) && limit > 0) rows = rows.slice(0, limit);
 
     if (!rows.length) {
       list.remove();
-      message(block, 'No items published yet.');
+      message(block, matched && products
+        ? 'No priced products found - add a price to the product page metadata.'
+        : 'No items published yet.');
       return;
     }
 
-    rows.forEach((entry) => list.append(cardFromIndex(entry)));
+    rows.forEach((entry) => list.append(cardFromIndex(entry, products, currency)));
   } catch (error) {
     list.remove();
     message(block, 'Unable to load items.');

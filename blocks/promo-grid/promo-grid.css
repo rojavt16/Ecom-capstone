@@ -62,10 +62,11 @@
   scroll-snap-align: start;
 }
 
-.promo-card-link {
+/* two classes, so this beats the global `a:any-link` link colour */
+.promo-grid .promo-card-link {
   display: block;
   position: relative;
-  color: inherit;
+  color: var(--text-color);
   text-decoration: none;
 }
 
@@ -139,6 +140,52 @@
   padding: 24px 0;
   color: var(--dark-color);
   font-size: 15px;
+}
+
+/* ------------------------------------------------ products variant */
+
+.promo-grid.products .promo-card-media {
+  aspect-ratio: 1 / 1;
+}
+
+.promo-grid.products .promo-card-label {
+  margin-top: 12px;
+  font-weight: 500;
+}
+
+.promo-card-price {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.promo-card-add {
+  width: 100%;
+  margin: 12px 0 0;
+  border: 1px solid var(--text-color);
+  border-radius: 999px;
+  padding: 9px 16px;
+  background: var(--background-color);
+  color: var(--text-color);
+  font-family: var(--body-font-family);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.promo-card-add:hover,
+.promo-card-add:focus-visible {
+  background: var(--text-color);
+  color: var(--background-color);
+}
+
+.promo-card-add.is-added {
+  border-color: #2f7d32;
+  background: #2f7d32;
+  color: #fff;
 }
 
 @media (width >= 900px) {
