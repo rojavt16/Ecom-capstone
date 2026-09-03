@@ -1,0 +1,77 @@
+/* Product teaser card. Loaded on demand by product-teaser.js, so any grid
+   that renders a teaser gets these styles without declaring them itself.
+   The surrounding grid layout belongs to the consuming block. */
+
+.product-teaser {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-teaser-link {
+  display: block;
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.product-teaser-media {
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--light-color);
+  aspect-ratio: 1 / 1;
+}
+
+.product-teaser-media picture,
+.product-teaser-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.product-teaser-link:hover .product-teaser-media img {
+  transform: scale(1.03);
+}
+
+.product-teaser-title {
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.product-teaser-price {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.product-teaser-add {
+  width: 100%;
+  margin: 12px 0 0;
+  border: 1px solid var(--text-color);
+  border-radius: 999px;
+  padding: 9px 16px;
+  background: var(--background-color);
+  color: var(--text-color);
+  font-family: var(--body-font-family);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.product-teaser-add:hover,
+.product-teaser-add:focus-visible {
+  background: var(--text-color);
+  color: var(--background-color);
+}
+
+.product-teaser-add.is-added {
+  border-color: #2f7d32;
+  background: #2f7d32;
+  color: #fff;
+}
