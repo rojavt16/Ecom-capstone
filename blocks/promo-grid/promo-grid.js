@@ -256,8 +256,11 @@ export default async function decorate(block) {
       header.append(h2);
     }
     if (cta) {
-      cta.className = 'promo-grid-cta';
-      header.append(cta);
+      // keep whatever the author formatted - bold gives .button.primary,
+      // italic .button.secondary - and move the wrapper across intact rather
+      // than replacing the class and imposing a look here
+      cta.classList.add('promo-grid-cta');
+      header.append(cta.closest('.button-wrapper') || cta);
     }
     block.append(header);
   }
