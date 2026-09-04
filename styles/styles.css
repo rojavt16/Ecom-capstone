@@ -306,7 +306,9 @@ main > .section > div {
   padding: 0 24px;
 }
 
-main > .section:first-of-type {
+/* a full-bleed hero sits flush under the nav; every other opening section
+   keeps its breathing room, so headings do not butt against the header */
+main > .section:first-of-type:has(.hero) {
   margin-top: 0;
 }
 
