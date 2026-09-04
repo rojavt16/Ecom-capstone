@@ -1,0 +1,133 @@
+.mini-cart {
+  position: relative;
+  display: inline-flex;
+}
+
+.mini-cart-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* the trolley is drawn in CSS so the block needs no icon asset */
+.mini-cart-toggle::before {
+  content: '';
+  width: 17px;
+  height: 14px;
+  border: 1.6px solid currentcolor;
+  border-top-color: transparent;
+  border-radius: 0 0 4px 4px;
+}
+
+.mini-cart-toggle::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 11px;
+  height: 8px;
+  transform: translateX(-50%);
+  border: 1.6px solid currentcolor;
+  border-bottom: 0;
+  border-radius: 6px 6px 0 0;
+}
+
+.mini-cart-count {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--text-color);
+  color: var(--background-color);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+}
+
+.mini-cart.is-empty .mini-cart-count {
+  background: var(--dark-color);
+}
+
+/* ------------------------------------------------------------------ panel */
+
+.mini-cart-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 20;
+  width: min(320px, calc(100vw - 32px));
+  padding: 16px;
+  box-sizing: border-box;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  background: var(--background-color);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 12%);
+  font-size: 14px;
+  text-align: left;
+}
+
+.mini-cart-items {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.mini-cart-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mini-cart-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-cart-item-qty {
+  color: var(--dark-color);
+}
+
+.mini-cart-item-price {
+  font-weight: 600;
+}
+
+.mini-cart-subtotal {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 14px;
+}
+
+.mini-cart-empty {
+  margin: 0;
+  color: var(--dark-color);
+}
+
+/* the panel button is the author's own, moved here - only its width is set */
+.mini-cart-panel .button-wrapper {
+  margin: 0;
+}
+
+.mini-cart-panel .button {
+  width: 100%;
+  justify-content: center;
+}
