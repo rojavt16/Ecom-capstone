@@ -1,0 +1,67 @@
+.account-overview {
+  max-width: 560px;
+}
+
+.account-overview-profile {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin: 0 0 24px;
+  font-size: 15px;
+}
+
+.account-overview-profile dt,
+.account-overview-profile dd {
+  margin: 0;
+  padding: 12px 0;
+  border-top: 1px solid #e6e6e6;
+}
+
+.account-overview-profile dt {
+  color: var(--dark-color);
+}
+
+.account-overview-profile dd {
+  font-weight: 500;
+}
+
+.account-overview-profile dt:first-of-type,
+.account-overview-profile dt:first-of-type + dd {
+  border-top: 0;
+}
+
+.account-overview-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 24px;
+  padding: 16px 18px;
+  border-radius: 10px;
+  background: var(--light-color);
+}
+
+.account-overview-stat strong {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.account-overview-stat span {
+  color: var(--dark-color);
+  font-size: 14px;
+}
+
+/* the actions are the author's own buttons, moved here */
+.account-overview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.account-overview-actions .button-wrapper {
+  margin: 0;
+}
+
+@media (width >= 600px) {
+  .account-overview-profile {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+}

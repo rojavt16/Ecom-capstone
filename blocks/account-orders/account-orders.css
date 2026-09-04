@@ -1,0 +1,125 @@
+.account-orders-list {
+  border-top: 1px solid #e6e6e6;
+}
+
+.account-orders-order {
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.account-orders-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  padding: 16px 0 16px 22px;
+  position: relative;
+  font-size: 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.account-orders-head::-webkit-details-marker {
+  display: none;
+}
+
+/* disclosure caret, drawn rather than shipped as an asset */
+.account-orders-head::before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  left: 2px;
+  width: 6px;
+  height: 6px;
+  border: 1.6px solid currentcolor;
+  border-width: 1.6px 1.6px 0 0;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.account-orders-order[open] .account-orders-head::before {
+  top: 24px;
+  transform: rotate(135deg);
+}
+
+.account-orders-id {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.account-orders-total {
+  font-weight: 700;
+  text-align: right;
+}
+
+.account-orders-date,
+.account-orders-status,
+.account-orders-count {
+  color: var(--dark-color);
+}
+
+/* ------------------------------------------------------------------ items */
+
+.account-orders-items {
+  margin: 0;
+  padding: 0 0 16px 22px;
+  list-style: none;
+}
+
+.account-orders-items li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px dashed #ececec;
+  font-size: 14px;
+}
+
+.account-orders-item-name {
+  color: var(--text-color);
+  overflow: hidden;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+a.account-orders-item-name:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.account-orders-item-qty {
+  color: var(--dark-color);
+}
+
+.account-orders-item-total {
+  font-weight: 600;
+  text-align: right;
+}
+
+.account-orders-empty {
+  margin: 0 0 20px;
+  color: var(--dark-color);
+  font-size: 16px;
+}
+
+/* the actions are the author's own buttons, moved here */
+.account-orders-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.account-orders-actions .button-wrapper {
+  margin: 0;
+}
+
+@media (width >= 700px) {
+  .account-orders-head {
+    grid-template-columns: 130px 120px 110px minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .account-orders-total {
+    text-align: right;
+  }
+}
